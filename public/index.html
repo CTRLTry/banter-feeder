@@ -50,12 +50,37 @@
       padding: 6px 0;
       border-bottom: 1px solid #444;
     }
-	select#tagFilter {
-  font-size: 0.95rem;
-  padding: 6px;
-  background-color: #222;
+	.tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 140px;
+  overflow-y: auto;
+  background: #1e1e1e;
   border: 1px solid #444;
-  color: white;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.tag {
+  background-color: #2b2b2b;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.tag:hover {
+  background-color: #444;
+}
+
+.tag.selected {
+  background-color: #00bfa5;
+  color: #000;
+}
 }
 
   </style>
@@ -70,8 +95,19 @@
   <button onclick="setMood('chatty')">💬 Chatty</button>
   <button onclick="setMood('lore')">📚 Lore</button>
 </div>
-<select id="tagFilter" multiple size="4" onchange="refreshFilteredLines()" style="width: 100%; max-height: 120px; overflow-y: auto; border-radius: 6px;">
-</select>
+<div class="tag-container" id="tagList">
+  <span class="tag">City Tales: Medieval Era</span>
+  <span class="tag">absurd</span>
+  <span class="tag">celebration</span>
+  <span class="tag">chaos</span>
+  <span class="tag">snark</span>
+  <span class="tag">wholesome</span>
+  <span class="tag">meta</span>
+  <span class="tag">stream fails</span>
+  <span class="tag">npc vibes</span>
+  <span class="tag">viewer callout</span>
+  <!-- Add as many as needed -->
+</div>
 <!-- 💬 AI Banter Generator UI -->
 <div style="margin-top: 30px; padding: 12px; border-top: 1px solid #444;">
   <h3>⚡ Need Banter On the Fly?</h3>
@@ -234,8 +270,15 @@ function saveGenerated(text) {
   document.getElementById("aiResult").innerHTML = '';
 }
 
+document.querySelectorAll('.tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      tag.classList.toggle('selected');
+      // optional: trigger your tag filter logic here
+      console.log(`Toggled tag: ${tag.textContent}`);
+    });
+  });
+
 </script>
 
 </body>
 </html>
-
