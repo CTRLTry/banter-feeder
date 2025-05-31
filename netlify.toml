@@ -1,5 +1,5 @@
 [build]
-  publish = "." # or your main frontend folder
+  publish = "public" # or your main frontend folder
   functions = "netlify/functions"
 
 [functions]
