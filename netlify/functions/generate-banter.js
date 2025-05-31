@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 exports.handler = async function(event, context) {
   const { prompt, mood } = JSON.parse(event.body);
   const systemPrompt = `You're a witty, sarcastic, stream-savvy AI that generates one-liner banter for a Twitch streamer. It should feel human, off-the-cuff, and fit the selected tone.`;
