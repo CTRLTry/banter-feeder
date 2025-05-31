@@ -1,21 +1,38 @@
 exports.handler = async function(event, context) {
-  const { prompt, mood } = JSON.parse(event.body);
-  const systemPrompt = `You're a witty, sarcastic, stream-savvy AI that generates one-liner banter for a Twitch streamer. It should feel human, off-the-cuff, and fit the selected tone.`;
-
-  const userPrompt = `Make a single banter line about: "${prompt}". The tone should be "${mood}".`;
-
   try {
+    if (!event.body) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "No request body provided." }),
+      };
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(event.body);
+    } catch (err) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: "Invalid JSON format." }),
+      };
+    }
+
+    const { prompt, mood } = parsed;
+
+    // 👇 HERE is where you set the model dynamically
+    const model = process.env.USE_GPT_4 === "true" ? "gpt-4o" : "gpt-3.5-turbo";
+
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4", // or "gpt-3.5-turbo"
+        model,
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
+          { role: "system", content: "You're a clever Twitch banter writer." },
+          { role: "user", content: `Write a banter line about: "${prompt}" in a "${mood}" tone.` }
         ],
         temperature: 0.9,
         max_tokens: 100
