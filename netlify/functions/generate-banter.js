@@ -23,15 +23,22 @@ exports.handler = async function(event, context) {
     });
 
     const data = await response.json();
-    const result = data.choices[0].message.content.trim();
+
+    if (!response.ok) {
+      return {
+        statusCode: response.status,
+        body: JSON.stringify({ error: "OpenAI API error", details: data })
+      };
+    }
+
     return {
       statusCode: 200,
-      body: JSON.stringify({ line: result })
+      body: JSON.stringify({ line: data.choices[0].message.content.trim() })
     };
   } catch (err) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "GPT call failed", details: err.message })
+      body: JSON.stringify({ error: "Function error", details: err.message })
     };
   }
 };
