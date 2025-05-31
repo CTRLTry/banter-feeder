@@ -1,1 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CTRL+TRY Banter Feeder</title>
+  <style>
+    body {
+      background: #121212;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .banter-line {
+      font-size: 1.4rem;
+      margin: 30px 0;
+      text-align: center;
+    }
+    button {
+      background: #333;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #555;
+    }
+    .panel {
+      background: #2a2a2a;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      display: none;
+    }
+    .panel-item {
+      padding: 6px 0;
+      border-bottom: 1px solid #444;
+    }
+	select#tagFilter {
+  font-size: 0.95rem;
+  padding: 6px;
+  background-color: #222;
+  border: 1px solid #444;
+  color: white;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+  <input id="searchInput" placeholder="Search banter..." oninput="refreshFilteredLines()" />
+<div style="margin-bottom: 10px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+  <button onclick="setMood('')">🎯 All</button>
+  <button onclick="setMood('chaotic')">🤡 Chaotic</button>
+  <button onclick="setMood('chill')">🧠 Chill</button>
+  <button onclick="setMood('chatty')">💬 Chatty</button>
+  <button onclick="setMood('lore')">📚 Lore</button>
+</div>
+<select id="tagFilter" multiple size="4" onchange="refreshFilteredLines()" style="width: 100%; max-height: 120px; overflow-y: auto; border-radius: 6px;">
+</select>
+<!-- 💬 AI Banter Generator UI -->
+<div style="margin-top: 30px; padding: 12px; border-top: 1px solid #444;">
+  <h3>⚡ Need Banter On the Fly?</h3>
+  <input id="aiPrompt" placeholder="Give me a line about..." style="width: 60%;">
+  <select id="aiMood">
+    <option value="chaotic">Chaotic</option>
+    <option value="chill">Chill</option>
+    <option value="chatty">Chatty</option>
+    <option value="lore">Lore</option>
+    <option value="meta">Stream Meta</option>
+  </select>
+  <button onclick="generateAI()">⚡ Generate</button>
+  <div id="aiResult" style="margin-top: 10px;"></div>
+</div>
+
+
+    <div id="banterDisplay" class="banter-line">Click "Next Line" to start</div>
+    <div style="text-align:center">
+      <button onclick="nextLine()">🎲 Next Line</button>
+      <button onclick="markFavorite()">⭐ Favorite</button>
+      <button onclick="togglePanel('favoritesPanel')">📂 Favorites</button>
+      <button onclick="togglePanel('recapPanel')">🧠 Recap</button>
+    </div>
+    <div id="favoritesPanel" class="panel"></div>
+    <div id="recapPanel" class="panel"></div>
+  </div>
+
+  <script>
+  let banterLines = [];
+  let filteredLines = [];
+  let used = new Set();
+  let favorites = new Set(JSON.parse(localStorage.getItem("favorites") || "[]"));
+  let recap = [];
+  let currentMoodTags = [];
+
+  fetch("banter_lines.json")
+    .then(res => res.json())
+    .then(data => {
+      banterLines = data;
+      buildTagDropdown();
+      refreshFilteredLines();
+    });
+
+const moodPresets = {
+  "chaotic": ["chaos", "absurd", "wild"],
+  "chill": ["relatable", "fun", "soft", "vibe"],
+  "chatty": ["interactive", "question", "prompt", "chat"],
+  "lore": ["City Tales: Medieval Era", "lore", "medieval"]
+};
+
+function setMood(mood) {
+  currentMoodTags = moodPresets[mood] || [];
+  refreshFilteredLines();
+}
+
+ function buildTagDropdown() {
+  const allTags = new Set();
+  banterLines.forEach(line => line.tags?.forEach(tag => allTags.add(tag)));
+  const tagFilter = document.getElementById("tagFilter");
+  tagFilter.innerHTML = ''; // Clear old
+  [...allTags].sort().forEach(tag => {
+    const opt = document.createElement("option");
+    opt.value = tag;
+    opt.textContent = tag;
+    tagFilter.appendChild(opt);
+  });
+}
+
+function getSelectedTags() {
+  const selected = [];
+  const options = document.getElementById("tagFilter").options;
+  for (let opt of options) {
+    if (opt.selected) selected.push(opt.value);
+  }
+  return selected;
+}
+
+function refreshFilteredLines() {
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const selectedTags = getSelectedTags();
+  filteredLines = banterLines.filter(b => {
+    const notUsed = !used.has(b.text);
+    const matchesSearch = b.text.toLowerCase().includes(search);
+    const matchesAllSelected = selectedTags.every(tag => b.tags?.includes(tag));
+    const matchesMood = currentMoodTags.length === 0 || currentMoodTags.some(tag => b.tags?.includes(tag));
+    return notUsed && matchesSearch && matchesAllSelected && matchesMood;
+  });
+}
+
+
+  function nextLine() {
+    const display = document.getElementById("banterDisplay");
+    if (filteredLines.length === 0) {
+      display.textContent = "No more matching lines!";
+      return;
+    }
+    const index = Math.floor(Math.random() * filteredLines.length);
+    const choice = filteredLines[index];
+    used.add(choice.text);
+    recap.push(`[${new Date().toLocaleTimeString()}] ${choice.text}`);
+    display.textContent = choice.text;
+    refreshFilteredLines(); // Update pool
+  }
+
+  function markFavorite() {
+    const line = document.getElementById("banterDisplay").textContent;
+    if (line && !favorites.has(line)) {
+      favorites.add(line);
+      localStorage.setItem("favorites", JSON.stringify([...favorites]));
+      alert("⭐ Favorited!");
+    }
+  }
+
+  function togglePanel(id) {
+    const panel = document.getElementById(id);
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+    if (id === "favoritesPanel") renderFavorites();
+    if (id === "recapPanel") renderRecap();
+  }
+
+  function renderFavorites() {
+    const box = document.getElementById("favoritesPanel");
+    box.innerHTML = [...favorites].map(line => `<div class="panel-item">${line}</div>`).join('');
+  }
+
+  function renderRecap() {
+    const box = document.getElementById("recapPanel");
+    box.innerHTML = recap.map(entry => `<div class="panel-item">${entry}</div>`).join('');
+  }
+  
+  async function generateAI() {
+  const prompt = document.getElementById("aiPrompt").value;
+  const mood = document.getElementById("aiMood").value;
+  const resultBox = document.getElementById("aiResult");
+  resultBox.textContent = "Generating...";
+
+  const res = await fetch("/.netlify/functions/generate-banter", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ prompt, mood })
+  });
+
+  const data = await res.json();
+  if (data.line) {
+    resultBox.innerHTML = `
+      <div style="margin-top:10px; font-weight:bold;">"${data.line}"</div>
+      <button onclick="saveGenerated('${data.line.replace(/'/g, "\\'")}')">✅ Save</button>
+      <button onclick="document.getElementById('aiResult').innerHTML = ''">🗑️ Ditch</button>
+    `;
+  } else {
+    resultBox.textContent = "Something went wrong.";
+  }
+}
+
+function saveGenerated(text) {
+  banterLines.push({ text, tags: ["ai-generated"] });
+  refreshFilteredLines();
+  document.getElementById("aiResult").innerHTML = '';
+}
+
+</script>
+
+</body>
+</html>
 
