@@ -109,11 +109,6 @@
   <!-- Add as many as needed -->
 </div>
 
-<label for="tagFilter">🔖 Filter by Tags:</label>
-<select id="tagFilter" multiple size="6" style="margin-bottom: 15px;">
-  <!-- Tags will be populated dynamically -->
-</select>
-	  
 <label for="categoryPicker">🎯 Pick a Category:</label>
 <select id="categoryPicker">
   <option value="">— Any —</option>
@@ -145,7 +140,6 @@ window.onload = () => {
     .then(res => res.json())
     .then(data => {
       banterLines = data;
-      buildTagDropdown();
       refreshFilteredLines();
       populateCategoryPicker(); // 👈 ADD THIS
     });
@@ -163,18 +157,6 @@ function setMood(mood) {
   refreshFilteredLines();
 }
 	
- function buildTagDropdown() {
-  const allTags = new Set();
-  banterLines.forEach(line => line.tags?.forEach(tag => allTags.add(tag)));
-  const tagFilter = document.getElementById("tagFilter");
-  tagFilter.innerHTML = ''; // Clear old
-  [...allTags].sort().forEach(tag => {
-    const opt = document.createElement("option");
-    opt.value = tag;
-    opt.textContent = tag;
-    tagFilter.appendChild(opt);
-  });
-}
 
 function getSelectedTags() {
   return Array.from(document.querySelectorAll('.tag.selected')).map(tag => tag.textContent.trim());
