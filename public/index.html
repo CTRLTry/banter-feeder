@@ -185,7 +185,7 @@ function getRandomFromCategory() {
   currentLine = pick.text;
   used.add(pick.text);
   refreshFilteredLines();
-  showLine(pick.text);
+  document.getElementById("lineDisplay").textContent = pick.text;
 }
 
 
