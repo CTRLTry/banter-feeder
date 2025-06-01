@@ -177,13 +177,9 @@ function setMood(mood) {
 }
 
 function getSelectedTags() {
-  const selected = [];
-  const options = document.getElementById("tagFilter").options;
-  for (let opt of options) {
-    if (opt.selected) selected.push(opt.value);
-  }
-  return selected;
+  return Array.from(document.querySelectorAll('.tag.selected')).map(tag => tag.textContent.trim());
 }
+
 
 function refreshFilteredLines() {
   const search = document.getElementById("searchInput").value.toLowerCase();
