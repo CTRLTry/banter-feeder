@@ -133,6 +133,7 @@
   let recap = [];
   let currentMoodTags = [];
 
+document.addEventListener("DOMContentLoaded", () => {
   fetch("banter_lines.json")
     .then(res => res.json())
     .then(data => {
@@ -141,6 +142,7 @@
       refreshFilteredLines();
       populateCategoryPicker(); // 👈 ADD THIS
     });
+});
 
 const moodPresets = {
   "chaotic": ["chaos", "absurd", "wild"],
@@ -157,10 +159,14 @@ function setMood(mood) {
 function populateCategoryPicker() {
   const catSet = new Set();
   banterLines.forEach(b => {
-    if (b.category) catSet.add(b.category);
+    if (b.category && b.category.trim()) {
+      console.log("Found category:", b.category); // Add this line for debug
+      catSet.add(b.category);
+    }
   });
 
   const picker = document.getElementById("categoryPicker");
+  picker.innerHTML = '<option value="">– Any –</option>';
   catSet.forEach(cat => {
     const opt = document.createElement("option");
     opt.value = cat;
@@ -168,6 +174,7 @@ function populateCategoryPicker() {
     picker.appendChild(opt);
   });
 }
+
 
 
 function getRandomFromCategory() {
