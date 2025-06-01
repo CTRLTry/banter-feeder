@@ -278,7 +278,7 @@ async function saveGeneratedLine() {
   const data = await res.json();
   if (data.line) {
     resultBox.innerHTML = `
-      <div style="margin-top:10px; font-weight:bold;">"${data.line}"</div>
+      <div id="generatedLine" style="margin-top:10px; font-weight:bold;">"${data.line}"</div>
       <label for="saveTagSelector">Choose tags:</label>
       <select id="saveTagSelector" multiple size="6">
         <option value="chaos">chaos</option>
