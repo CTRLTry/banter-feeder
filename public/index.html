@@ -108,10 +108,17 @@
   <span class="tag">viewer callout</span>
   <!-- Add as many as needed -->
 </div>
+
+<label for="tagFilter">🔖 Filter by Tags:</label>
+<select id="tagFilter" multiple size="6" style="margin-bottom: 15px;">
+  <!-- Tags will be populated dynamically -->
+</select>
+	  
 <label for="categoryPicker">🎯 Pick a Category:</label>
 <select id="categoryPicker">
   <option value="">— Any —</option>
 </select>
+	  
 <button onclick="getRandomFromCategory()">🎲 Pull Random Line</button>
 
     <div id="banterDisplay" class="banter-line">Click "Next Line" to start</div>
