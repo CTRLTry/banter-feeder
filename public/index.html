@@ -139,6 +139,7 @@
       banterLines = data;
       buildTagDropdown();
       refreshFilteredLines();
+      populateCategoryPicker(); // 👈 ADD THIS
     });
 
 const moodPresets = {
@@ -159,6 +160,16 @@ function populateCategoryPicker() {
     if (b.category) catSet.add(b.category);
   });
 
+
+  const picker = document.getElementById("categoryPicker");
+  catSet.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    picker.appendChild(opt);
+  });
+}
+
 function getRandomFromCategory() {
   const selected = document.getElementById("categoryPicker").value;
   const pool = banterLines.filter(b => {
@@ -178,14 +189,6 @@ function getRandomFromCategory() {
 }
 
 
-  const picker = document.getElementById("categoryPicker");
-  catSet.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    picker.appendChild(opt);
-  });
-}
 
  function buildTagDropdown() {
   const allTags = new Set();
