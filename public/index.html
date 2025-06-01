@@ -267,10 +267,10 @@ function saveGenerated(text) {
 }
 
 document.querySelectorAll('.tag').forEach(tag => {
-    tag.addEventListener('click', () => {
-      tag.classList.toggle('selected');
-      // optional: trigger your tag filter logic here
-      console.log(`Toggled tag: ${tag.textContent}`);
+  tag.addEventListener('click', () => {
+    tag.classList.toggle('selected');
+    refreshFilteredLines(); // <-- 🔥 This is the missing piece
+    console.log(`Toggled tag: ${tag.textContent}`);
     });
   });
 
