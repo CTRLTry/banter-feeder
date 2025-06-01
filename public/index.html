@@ -155,48 +155,7 @@ function setMood(mood) {
   currentMoodTags = moodPresets[mood] || [];
   refreshFilteredLines();
 }
-	  
-function populateCategoryPicker() {
-  const catSet = new Set();
-  banterLines.forEach(b => {
-    if (b.category && b.category.trim()) {
-      console.log("Found category:", b.category); // Add this line for debug
-      catSet.add(b.category);
-    }
-  });
-
-  const picker = document.getElementById("categoryPicker");
-  picker.innerHTML = '<option value="">– Any –</option>';
-  catSet.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.textContent = cat;
-    picker.appendChild(opt);
-  });
-}
-
-
-
-function getRandomFromCategory() {
-  const selected = document.getElementById("categoryPicker").value;
-  const pool = banterLines.filter(b => {
-    return (!used.has(b.text)) && (!selected || b.category === selected);
-  });
-
-  if (pool.length === 0) {
-    alert("No more unused lines in this category!");
-    return;
-  }
-
-  const pick = pool[Math.floor(Math.random() * pool.length)];
-  currentLine = pick.text;
-  used.add(pick.text);
-  refreshFilteredLines();
-  document.getElementById("banterDisplay").textContent = pick.text;
-}
-
-
-
+	
  function buildTagDropdown() {
   const allTags = new Set();
   banterLines.forEach(line => line.tags?.forEach(tag => allTags.add(tag)));
@@ -267,6 +226,46 @@ function refreshFilteredLines() {
     const box = document.getElementById("recapPanel");
     box.innerHTML = recap.map(entry => `<div class="panel-item">${entry}</div>`).join('');
   }
+
+function populateCategoryPicker() {
+  const catSet = new Set();
+  banterLines.forEach(b => {
+    if (b.category && b.category.trim()) {
+      console.log("Found category:", b.category); // Add this line for debug
+      catSet.add(b.category);
+    }
+  });
+
+  const picker = document.getElementById("categoryPicker");
+  picker.innerHTML = '<option value="">– Any –</option>';
+  catSet.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    picker.appendChild(opt);
+  });
+}
+
+
+
+function getRandomFromCategory() {
+  const selected = document.getElementById("categoryPicker").value;
+  const pool = banterLines.filter(b => {
+    return (!used.has(b.text)) && (!selected || b.category === selected);
+  });
+
+  if (pool.length === 0) {
+    alert("No more unused lines in this category!");
+    return;
+  }
+
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  currentLine = pick.text;
+  used.add(pick.text);
+  refreshFilteredLines();
+  document.getElementById("banterDisplay").textContent = pick.text;
+}
+
 	  
 document.querySelectorAll('.tag').forEach(tag => {
   tag.addEventListener('click', () => {
