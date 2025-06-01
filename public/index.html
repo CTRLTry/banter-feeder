@@ -118,6 +118,7 @@
     <option value="chatty">Chatty</option>
     <option value="lore">Lore</option>
     <option value="meta">Stream Meta</option>
+    <option value="">any</option>
   </select>
   <button onclick="generateAI()">⚡ Generate</button>
   <div id="aiResult" style="margin-top: 10px;"></div>
@@ -233,9 +234,35 @@ function refreshFilteredLines() {
     const box = document.getElementById("recapPanel");
     box.innerHTML = recap.map(entry => `<div class="panel-item">${entry}</div>`).join('');
   }
+
+async function saveGeneratedLine() {
+  const text = document.getElementById("generatedLine").textContent.trim();
+  const tags = getSelectedTags(); // You can reuse the same tag selection logic or let user choose tags
+
+  const newEntry = {
+    text,
+    tags
+  };
+
+  const res = await fetch("/.netlify/functions/save-banter", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(newEntry)
+  });
+
+  const result = await res.json();
+  if (result.success) {
+    alert("✅ Banter saved!");
+  } else {
+    alert("❌ Failed to save banter.");
+  }
+}
+
   
   async function generateAI() {
-  const prompt = document.getElementById("aiPrompt").value;
+  const prompt = document.getElementById("aiPrompt").value.trim(); // 🔓 Freeform
   const mood = document.getElementById("aiMood").value;
   const resultBox = document.getElementById("aiResult");
   resultBox.textContent = "Generating...";
@@ -252,14 +279,22 @@ function refreshFilteredLines() {
   if (data.line) {
     resultBox.innerHTML = `
       <div style="margin-top:10px; font-weight:bold;">"${data.line}"</div>
-      <button onclick="saveGenerated('${data.line.replace(/'/g, "\\'")}')">✅ Save</button>
+      <label for="saveTagSelector">Choose tags:</label>
+      <select id="saveTagSelector" multiple size="6">
+        <option value="chaos">chaos</option>
+        <option value="City Tales: Medieval Era">City Tales: Medieval Era</option>
+        <option value="absurd">absurd</option>
+        <option value="streamer fail">streamer fail</option>
+        <option value="celebration">celebration</option>
+        <!-- Add more as needed -->
+      </select>
+      <button onclick="saveGeneratedLine()">💾 Save to Banter</button>
       <button onclick="document.getElementById('aiResult').innerHTML = ''">🗑️ Ditch</button>
     `;
   } else {
     resultBox.textContent = "Something went wrong.";
   }
 }
-
 function saveGenerated(text) {
   banterLines.push({ text, tags: ["ai-generated"] });
   refreshFilteredLines();
