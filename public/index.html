@@ -229,21 +229,30 @@ function refreshFilteredLines() {
 
 function populateCategoryPicker() {
   const catSet = new Set();
+
   banterLines.forEach(b => {
-    if (b.category && b.category.trim()) {
-      console.log("Found category:", b.category); // Add this line for debug
-      catSet.add(b.category);
+    if (b.category) {
+      catSet.add(b.category.trim());
     }
   });
 
   const picker = document.getElementById("categoryPicker");
-  picker.innerHTML = '<option value="">– Any –</option>';
-  catSet.forEach(cat => {
+  if (!picker) {
+    console.error("❌ Could not find #categoryPicker element.");
+    return;
+  }
+
+  // Clear any previous entries
+  picker.innerHTML = '<option value="">— Any —</option>';
+
+  Array.from(catSet).sort().forEach(cat => {
     const opt = document.createElement("option");
     opt.value = cat;
     opt.textContent = cat;
     picker.appendChild(opt);
   });
+
+  console.log("✅ Categories loaded:", Array.from(catSet));
 }
 
 
