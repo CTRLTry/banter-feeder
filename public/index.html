@@ -108,6 +108,11 @@
   <span class="tag">viewer callout</span>
   <!-- Add as many as needed -->
 </div>
+<label for="categoryPicker">🎯 Pick a Category:</label>
+<select id="categoryPicker">
+  <option value="">— Any —</option>
+</select>
+<button onclick="getRandomFromCategory()">🎲 Pull Random Line</button>
 
     <div id="banterDisplay" class="banter-line">Click "Next Line" to start</div>
     <div style="text-align:center">
@@ -146,6 +151,40 @@ const moodPresets = {
 function setMood(mood) {
   currentMoodTags = moodPresets[mood] || [];
   refreshFilteredLines();
+}
+	  
+function populateCategoryPicker() {
+  const catSet = new Set();
+  banterLines.forEach(b => {
+    if (b.category) catSet.add(b.category);
+  });
+
+function getRandomFromCategory() {
+  const selected = document.getElementById("categoryPicker").value;
+  const pool = banterLines.filter(b => {
+    return (!used.has(b.text)) && (!selected || b.category === selected);
+  });
+
+  if (pool.length === 0) {
+    alert("No more unused lines in this category!");
+    return;
+  }
+
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  currentLine = pick.text;
+  used.add(pick.text);
+  refreshFilteredLines();
+  showLine(pick.text);
+}
+
+
+  const picker = document.getElementById("categoryPicker");
+  catSet.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    picker.appendChild(opt);
+  });
 }
 
  function buildTagDropdown() {
