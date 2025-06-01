@@ -133,7 +133,7 @@
   let recap = [];
   let currentMoodTags = [];
 
-document.addEventListener("DOMContentLoaded", () => {
+window.onload = () => {
   fetch("banter_lines.json")
     .then(res => res.json())
     .then(data => {
