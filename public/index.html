@@ -160,7 +160,6 @@ function populateCategoryPicker() {
     if (b.category) catSet.add(b.category);
   });
 
-
   const picker = document.getElementById("categoryPicker");
   catSet.forEach(cat => {
     const opt = document.createElement("option");
@@ -169,6 +168,7 @@ function populateCategoryPicker() {
     picker.appendChild(opt);
   });
 }
+
 
 function getRandomFromCategory() {
   const selected = document.getElementById("categoryPicker").value;
